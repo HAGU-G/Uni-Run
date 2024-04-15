@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private SpriteRenderer sr;
-    private Animator anim;
+    private Rigidbody2D rigidBody;
+    private SpriteRenderer spriteRenderer;
+    private Animator animator;
+    private AudioSource auodioSource;
 
     private bool isGrounded = false;
     public float speed = 20f;
 
-    public float jumpSpeed = 8f;
+    public float jumpSpeed = 5f;
     public int maxJump = 1;
     private int jumpCount = 1;
 
@@ -20,30 +22,34 @@ public class Player : MonoBehaviour
     private float jumpTimer = 0;
     public float jumpDuration = 0.25f;
 
+    public GameObject textY;
+
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
-        anim = GetComponent<Animator>();
+        rigidBody = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        auodioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
     {
-
+        textY = GameObject.Find("Square");
     }
 
     private void Update()
     {
         if (jumpCount > 0 && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
         {
+            auodioSource.Play();
             jumpCount--;
             isJumping = true;
-            rb.velocity = new(rb.velocity.x, 0);
-            rb.AddForce(rb.transform.up * jumpSpeed, ForceMode2D.Impulse);
-            rb.gravityScale = 0.5f;
-            if(!isGrounded)
+            rigidBody.velocity = new(rigidBody.velocity.x, 0);
+            rigidBody.AddForce(rigidBody.transform.up * jumpSpeed, ForceMode2D.Impulse);
+            rigidBody.gravityScale = 0.25f;
+            if (!isGrounded)
             {
-                anim.SetTrigger("JumpAgain");
+                animator.SetTrigger("JumpAgain");
             }
         }
 
@@ -54,25 +60,35 @@ public class Player : MonoBehaviour
             if (jumpTimer >= jumpDuration || Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
             {
                 jumpTimer = 0;
-                rb.gravityScale = 1f;
+                rigidBody.gravityScale = 1f;
                 isJumping = false;
             }
         }
 
 
 
-        rb.velocity = new(Input.GetAxisRaw("Horizontal") * speed, rb.velocity.y);
+        rigidBody.velocity = new(Input.GetAxisRaw("Horizontal") * speed, rigidBody.velocity.y);
 
-        if (rb.velocity.x > 0)
+        if (rigidBody.velocity.x > 0)
         {
-            sr.flipX = false;
+            spriteRenderer.flipX = false;
         }
-        else if (rb.velocity.x < 0)
+        else if (rigidBody.velocity.x < 0)
         {
-            sr.flipX = true;
+            spriteRenderer.flipX = true;
         }
 
-        anim.SetBool("Grounded", isGrounded);
+        animator.SetBool("Grounded", isGrounded);
+        textY.transform.position = new(transform.position.x, textY.transform.position.y);
+        if (transform.position.y + transform.up.y > textY.transform.position.y)
+        {
+            textY.transform.position = transform.position + transform.up;
+            textY.GetComponent<TextMeshPro>().text = $"Y : {transform.position.y:N2}";
+        }
+        else
+        {
+            textY.transform.position -= transform.up * Time.deltaTime;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -88,5 +104,19 @@ public class Player : MonoBehaviour
     {
         if (collision.collider.CompareTag("Platform"))
             isGrounded = false;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("DeadZone"))
+        {
+            OnDie();
+        }
+    }
+
+    public void OnDie()
+    {
+        gameObject.SetActive(false);
+        SceneManager.LoadScene("Main");
     }
 }
