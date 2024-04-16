@@ -77,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 876783748, guid: 56fa9debf52c25d4cbbc40bedc6c74ca, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -259,9 +259,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b11eff0809bb748833023bacadef7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathClip: {fileID: 8300000, guid: 9dad357a9443cac4fa45910c67fa962c, type: 3}
   speed: 5
   jumpSpeed: 8
   maxJump: 3
+  jumpDuration: 0.25
+  textY: {fileID: 0}
 --- !u!95 &6428114996676622891
 Animator:
   serializedVersion: 5
