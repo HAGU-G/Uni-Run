@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Pool;
 
 
 //1. Àå¾Ö¹° On/Off
@@ -19,6 +19,8 @@ public class Platform : MonoBehaviour
     private bool stepped = false;
     private Vector2 startPos = new(14.74f, -3.65f);
 
+    public IObjectPool<Platform> pp;
+
     private void OnEnable()
     {
         foreach (var obstacle in obstacles)
@@ -27,11 +29,6 @@ public class Platform : MonoBehaviour
         }
         stepped = false;
         transform.position = startPos + Vector2.up * Random.Range(0f, 3f);
-    }
-
-    private void OnDisable()
-    {
-        Debug.Log($"OnDisable {Time.time}");
     }
 
     private void Start()
@@ -45,6 +42,7 @@ public class Platform : MonoBehaviour
         if (transform.position.x < -20)
         {
             gameObject.SetActive(false);
+            pp.Release(this);
         }
     }
 
